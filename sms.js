@@ -2,14 +2,28 @@
 //Github:  https://github.com/robertstinnett/syncSMS
 //Code for Error Handling by Kirkman - http://breakintochat.com & https://github.com/Kirkman
 
+// Setup some color variables
+var gy = "\1n\001w"; //Synchronet Ctrl-A Code for Normal White (which looks gray)
+var wh = "\001w\1h"; //Synchronet Ctrl-A Code for High Intensity White
+var drkyl = "\001n\001y"; //Synchronet Ctrl-A Code for Dark (normal) Yellow
+var yl = "\001y\1h"; //Synchronet Ctrl-A Code for High Intensity Yellow
+var drkbl = "\001n\001b"; //Synchronet Ctrl-A Code for Dark (normal) Blue
+var bl = "\001b\1h"; //Synchronet Ctrl-A Code for High Intensity Blue
+var drkrd = "\001n\001r"; //Synchronet Ctrl-A Code for Dark (normal) Red
+var rd = "\001r\1h"; //Synchronet Ctrl-A Code for High Intensity Red
+var drkcy = "\001n\001c"; //Synchronet Ctrl-A Code for Dark (normal) Cyan
+var cy = "\001c\1h"; //Synchronet Ctrl-A Code for High Intensity Cyan
+var gr = "\001g\1h"; //Synchronet Ctrl-A Code for High Intensity Green
 
-var version = "1.00 - XX/XX/2019";
 
-var apiEndpoint = "https://openexchangerates.org/api/";
-var apiLatestCall = "latest.json?app_id=";
+
+var version = cy + "1.00" + bl + " - " + cy + "XX/XX/2019";
+
+var apiEndpoint = "https://api.twilio.com/2010-04-01/Accounts/";
+var apiMessages = "latest.json?app_id=";
 var apiCurrencyListCall = "currencies.json?prettyprint=true&show_alternative=false&show_inactive=false";  // Freebie call!
 
-var updateURL = "http://api.dmxrob.net/doorcheck/check_door?door_id=syncSMS"
+var updateURL = "http://api.dmxrob.net/doorcheck/"
 var updateFlag = true;
 
 var usd_amount = 1;  // Base currency amount in USD
@@ -37,18 +51,6 @@ var updateFlag = opts.updateFlag;
 
 
 
-// Setup some color variables
-var gy = "\1n\001w"; //Synchronet Ctrl-A Code for Normal White (which looks gray)
-var wh = "\001w\1h"; //Synchronet Ctrl-A Code for High Intensity White
-var drkyl = "\001n\001y"; //Synchronet Ctrl-A Code for Dark (normal) Yellow
-var yl = "\001y\1h"; //Synchronet Ctrl-A Code for High Intensity Yellow
-var drkbl = "\001n\001b"; //Synchronet Ctrl-A Code for Dark (normal) Blue
-var bl = "\001b\1h"; //Synchronet Ctrl-A Code for High Intensity Blue
-var drkrd = "\001n\001r"; //Synchronet Ctrl-A Code for Dark (normal) Red
-var rd = "\001r\1h"; //Synchronet Ctrl-A Code for High Intensity Red
-var drkcy = "\001n\001c"; //Synchronet Ctrl-A Code for Dark (normal) Cyan
-var cy = "\001c\1h"; //Synchronet Ctrl-A Code for High Intensity Cyan
-var gr = "\001g\1h"; //Synchronet Ctrl-A Code for High Intensity Green
 
 
 
@@ -69,9 +71,9 @@ function displayHeader() {
 	console.crlf();
 	var whereBottomIs = console.getxy();
     console.gotoxy(whereTitleGoes);
-	console.putmsg(bl + "syncSMS " + cy + "v" + version + bl + "by " + wh + "dmxrob");
+	console.putmsg(bl + "  syncSMS " + cy + "v" + version + bl + " by " + wh + "dmxrob");
 	console.gotoxy(whereSloganGoes);
-	console.putmsg(yl + "// A method to send direct SMS messages to the SYSOP //");
+	console.putmsg(yl + "  Send direct text messages to the SysOp");
 	console.gotoxy(whereBottomIs);
 	console.crlf(2);
 	
@@ -81,8 +83,28 @@ function sendSMSMessage() {
 	// Get the message to send and then send it!
 	var mySMSMessage = "";
 
-	if (console.yesno("This will send a SMS (text) message to the SYSOP " + system.operator + ", are you sure?")) {
+	console.putmsg(bl + "Enter your message below. Limit of 160 characters. Keep it short and sweet.");
+	console.crlf();
+	console.putmsg(yl + ":");
+	mySMSMessage = console.getstr(maxlen=160);
+
+	if (console.yesno("Send above text msg to " + system.operator + "")) {
 		// Ok, let's send it.
+
+		var req = new HTTPRequest();
+		var reqData = "To=+15734899806"; 
+		var sendSMSResult = req.post(apiEndpoint + twilioAccountSid  + "/Messages.json",reqData);
+		if (sendSMSResult === undefined) {
+			// Something went wrong
+			log("ERROR in sms.js:  Request to openexchangerates.org returned nothing/undefined");
+			console.putmsg("We're sorry, Currency Exchange Rates are not available right now. :-(")
+			exit();
+		}
+		console.putmsg(sendSMSResult);
+
+		// Parse the JSON
+		var currentRatesJSON = JSON.parse(currentRatesResponse);
+
 	}
 }
 
@@ -103,7 +125,7 @@ function getExchangeRates() {
 		
 		// Make the API call
 		var req = new HTTPRequest();
-		var currentRatesResponse = req.Get(apiEndpoint + apiLatestCall + openExchangeAPIkey);
+		var currentRatesResponse = req.Post(apiEndpoint +  + openExchangeAPIkey);
 		if (currentRatesResponse === undefined) {
 			// Something went wrong
 			log("ERROR in sms.js:  Request to openexchangerates.org returned nothing/undefined");
@@ -203,9 +225,9 @@ try {
 
 	// Print a welcome message and header
 
-	var currentRatesJSON = getExchangeRates();
-	searchExchangeRates(currentRatesJSON);
-    console.pause();
+	displayHeader();
+	sendSMSMessage();
+	console.pause();
     console.clear();
     console.aborted = false;
 
