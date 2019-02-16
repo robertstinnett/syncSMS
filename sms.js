@@ -86,13 +86,16 @@ function sendSMSMessage() {
 	console.putmsg(bl + "Enter your message below. Limit of 160 characters. Keep it short and sweet.");
 	console.crlf();
 	console.putmsg(yl + ":");
-	mySMSMessage = console.getstr(maxlen=160);
+	mySMSMessage = console.getstr(79,K_WRAP);
+	mySMSMessage = mySMSMessage + console.getstr(79);
 
 	if (console.yesno("Send above text msg to " + system.operator + "")) {
 		// Ok, let's send it.
 
 		var req = new HTTPRequest();
-		var reqData = "To=+15734899806"; 
+		var reqData = "From=+13142074299To=" + smsNumber + "Body=" + mySMSMessage;
+		console.putmsg("DEBUG:  reqData = " + reqData);console.crlf(2);
+		console.putmsg("DEBUG:  reqData Encoded = " + encodeURI(reqData));console.crlf(2);
 		var sendSMSResult = req.post(apiEndpoint + twilioAccountSid  + "/Messages.json",reqData);
 		if (sendSMSResult === undefined) {
 			// Something went wrong
@@ -100,7 +103,7 @@ function sendSMSMessage() {
 			console.putmsg("We're sorry, Currency Exchange Rates are not available right now. :-(")
 			exit();
 		}
-		console.putmsg(sendSMSResult);
+		console.putmsg("DEBUG:  result = " + sendSMSResult);
 
 		// Parse the JSON
 		var currentRatesJSON = JSON.parse(currentRatesResponse);
