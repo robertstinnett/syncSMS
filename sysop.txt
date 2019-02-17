@@ -1,63 +1,69 @@
-synCurrency by dmxrob
+syncSMS by dmxrob
 http://blog.dmxrob.net | telnet://bbs.dmxrob.net | ssh://bbs.dmxrob.net
 
 Table of Contents
+   I) What is syncSMS?
+  II) Getting a Twilio API Key
+ III) Setting up the syncSMS App (sms.js):
 
-  I) Getting a Open Exchange Rates API Key
- II) External Program Configuration
-	 a) modopts.ini
-     a) syncCurrency App (currency.js)
-
---------------------
-
-I) Getting a Open Exchange Rates API Key
-
-You can get your free API key for Open Exchange Rates here: https://openexchangerates.org/signup/free
-
-Free API plans are limited to 1,000 calls per month.  This shouldn't be a problem for most systems.  
-Future versions may include a way to cache/rate-limit to help keep below 1,000 calls/month.
-
-Once you sign up, after verifying your email address, you should get your key immediately.
 
 --------------------
 
-II) External Program Configuration
+I) What is syncSMS?
 
-Setting up the syncCurrency App (currency.js):
+syncSMS is a Synchronet BBS door that allows you to give users the ability to send SMS text messages to you.  It is not designed to allow users to get in touch with 
+you when an urgent situation arises without having to give out your personal cell phone number or contact information. I designed this door just as another way to learn
+Javascript, but felt it could potentially be useful to SysOps as an alternative method of letting users get in touch with them for urgent situations.
+
+syncSMS requires a valid Twilio account to run (see below).  As such, this door will cost to run.  Currently, as of February 2019, the cost to send a SMS message via
+Twilio is $ 0.0075 per message (less than a penny).  There is a $1.00 per month charge for an outgoing number.
+
+****> The average monthly cost to run this door is estimated to be between $1.00 and $ 1.75 <****
+
+
+--------------------
+
+II) Getting a TWilio API Key
+
+To use this door, you must have a Twilio account.  Twilio provides the service by which SMS messages can be sent.  It has a number of telephony features beyond SMS messaging,
+and I've used it for a number of projects over the years.  Twilio is a PAID service, though you can try Twilio for 30 days for free.
+
+To get your key simply sign up at https://www.twilio.com/try-twilio.  You will then want to follow the instructions to get your Twilio Sid number and Twilio Auth Token.
+
+If you run into any issues, drop me a line at robert@robertstinnett.com.
+
+--------------------
+
+III) Setting up the syncSMS App (currency.js):
 
 1: If you downloaded this as a ZIP file, extract the files to a folder in your /sbbs/xtrn/ directory. This doc assumes you named the
-   folder "syncCurrency" (ie. /sbbs/xtrn/syncCurrency/). 
+   folder "syncSMS" (ie. /sbbs/xtrn/syncSMS/). 
 
 2: Add the following section to your ctrl/modopts.ini file (typically located at /sbbs/ctrl/modopts.ini):
 
-[syncCurrency]
-openExchangeAPIkey = <your API key here>
-currencyTypes = MXN|CAD|EUR|GBP
+
+[syncSMS]
+smsToNumber = <Your cell phone numebr to receive SMS message on, must start with a +1>
+smsFromNumber = <The number you picked in Twilio.  This is not your cell phone number>
+twilioAccountSid = <Your Twilio Sid token>
+twilioAuthToken = <Your Twilio Auth Token>
 
 
-Change the entry for "openExchangeAPIkey = <your API key here>" by adding your API Key from Section I. 
-	Example:
-	openExchangeAPIkey = 123456789abc1234
-
-
-Change the currencyTypes to display whatever currency you wish.  The list can be as long as you want.  Seperate each entry with a | bar character as shown above.
-In the example shown above we are getting Mexican Pesos, Canadian Dollars, Euros and British Pounds.
-
-For a list of valid currency types in a web browser simple paste the following url replacing <your API key here> with your Open Exchange Rates API key:
-https://openexchangerates.org/api/latest.json?app_id=<Your API Key Here>
-
+All phone numbers must be in this format +15554443333 where 555 is your area code and 4443333 is your phone number.  
 
 NOTE: No quotes are needed in the modopts.ini section you added. 
    
 5: Set up the External Door via Synchornet Configuration, External Programs
 
-Setting up the main door (currency.js):
+* You may wish to only assign this door to trusted users with elevated security priviledges since it will send you SMS/text msgs. *
 
-[currency.js]
- 1: Name                       Latest Currency Exchange Rates
- 2: Internal Code              CURRENCY
- 3: Start-up Directory         ../xtrn/syncCurrency/
- 4: Command Line               ?currency.js
+Setting up the main door (sms.js):
+
+[sms.js]
+ 1: Name                       Send Text Message to SysOp
+ 2: Internal Code              SMSSEND
+ 3: Start-up Directory         ../xtrn/syncSMS/
+ 4: Command Line               ?sms.js
  5: Clean-up Command Line      
  6: Execution Cost             None
  7: Access Requirements        
@@ -67,7 +73,7 @@ Setting up the main door (currency.js):
 11: Native (32-bit) Executable No
 12: Use Shell to Execute       No
 13: Modify User Data           No
-14: Execute on Event           No (or "Logon" or "Logon, Only", it is up to you)
+14: Execute on Event           No
 15: Pause After Execution      No
 16: BBS Drop File Type         None
 17: Place Drop File In         Node Directory
