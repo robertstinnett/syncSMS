@@ -5,14 +5,15 @@ Table of Contents
    I) What is syncSMS?
   II) Getting a Twilio API Key
  III) Setting up the syncSMS App (sms.js):
+  IV) Setting up as a Page SysOp Event
 
 
 --------------------
 
 I) What is syncSMS?
 
-syncSMS is a Synchronet BBS door that allows you to give users the ability to send SMS text messages to you.  It is not designed to allow users to get in touch with 
-you when an urgent situation arises without having to give out your personal cell phone number or contact information. I designed this door just as another way to learn
+syncSMS is a Synchronet BBS door and SysOp page event that allows you to give users the ability to send SMS text messages to you.  It is designed to allow users to get
+in touch with you when an urgent situation arises without having to give out your personal cell phone number or contact information. I designed this door  to learn
 Javascript, but felt it could potentially be useful to SysOps as an alternative method of letting users get in touch with them for urgent situations.
 
 syncSMS requires a valid Twilio account to run (see below).  As such, this door will cost to run.  Currently, as of February 2019, the cost to send a SMS message via
@@ -34,7 +35,7 @@ If you run into any issues, drop me a line at robert@robertstinnett.com.
 
 --------------------
 
-III) Setting up the syncSMS App (currency.js):
+III) Setting up the syncSMS App (sms.js):
 
 1: If you downloaded this as a ZIP file, extract the files to a folder in your /sbbs/xtrn/ directory. This doc assumes you named the
    folder "syncSMS" (ie. /sbbs/xtrn/syncSMS/). 
@@ -78,6 +79,23 @@ Setting up the main door (sms.js):
 16: BBS Drop File Type         None
 17: Place Drop File In         Node Directory
 18: Time Options...
+
+IV) Setting up as a Page SysOp Event
+
+You can also set this us to be an event that will send you a SMS/text message when someone tries to page/chat you on the BBS.  This can be handy since
+often the BBS runs in the background or in a VM.
+
+To do so, you will need to first copy the sms.js file into your mods directory.  On Linux this would be /sbbs/mods normally.  You only need to copy this one file.
+
+Next, you need to configure the external SysOp pager to launch this.  To do so, go into your Synchronet Configuration menu as shown below...
+
+Configure -> Chat Features ->  External SysOp Chat Pagers -> [Insert] to add
+
+Add an event (remember, only one event fires, and the first event that meets access requirements is the one that fires) and configure the command line as shown:
+
+?sms.js page_sysop 
+
+Now, whenever a user pages, you will get a SMS/text message alerting you to who is paging you and on what node.
 
 ----------
 

@@ -1,4 +1,4 @@
-//syncSMS by dmxrob (Robert Stinnett) - http://blog.dmxrob.net | ssh://bbs.dmxrob.net | telnet://bbs.dmxrob
+//syncSMS by dmxrob (Robert Stinnett) - http://blog.dmxrob.net | ssh://bbs.dmxrob.net | telnet://bbs.dmxrob.net
 //Github:  https://github.com/robertstinnett/syncSMS
 //Code for Error Handling by Kirkman - http://breakintochat.com & https://github.com/Kirkman
 
@@ -17,7 +17,7 @@ var gr = "\001g\1h"; //Synchronet Ctrl-A Code for High Intensity Green
 
 // Set some program variables
 
-var version = cy + "1.00" + bl + " - " + cy + "02/17/2019";
+var version = cy + "2.00" + bl + " - " + cy + "02/18/2019";
 var apiEndpoint = "https://api.twilio.com/2010-04-01/Accounts/"; // Twilo Endpoint
 
 //Load modopts.ini info early so we can detect if the section exists for [syncSMS]
@@ -65,9 +65,8 @@ function displayHeader() {
 	
 }
 
-function sendSMSMessage() {
-	// Get the message to send and then send it!
-	
+function doorMode() {
+	// When run as a door
 	console.putmsg(bl + "Enter your phone number: ");
 	var myPhone =  console.getstr(LEN_PHONE,K_UPPER|K_LINE|K_EDIT|K_AUTODEL);
 	console.crlf();
@@ -77,13 +76,33 @@ function sendSMSMessage() {
 	var mySMSMessage = console.getstr(79,K_WRAP|K_LINE|K_EDIT);
 	console.putmsg(yl + ":" + wh);
 	mySMSMessage = mySMSMessage + console.getstr(41,K_LINE|K_EDIT);
-
+	console.crlf(2);
 	if (console.yesno("Send above text msg to " + system.operator + "")) {
 		// Ok, let's send it.
 
 		mySMSMessage = "U:" + user.alias + " P:" + myPhone + " M:" + mySMSMessage;
+		sendSMSMessage(mySMSMessage);
+	}
+	else {
+		console.putmsg(rd + "Message send aborted.  Nothing sent.");
+		console.crlf();
+		console.pause();
+	}
 
-		log("syncSMS Message Sent: "+ mySMSMessage);
+}
+
+function pageSysOpMode() {
+	// When run as an event for page sysop
+	console.crlf();
+	console.putmsg(yl + "Paging the SysOp... please allow a few minutes for them to respond.")
+	console.crlf();
+	var mySMSMessage = "SysOp page from " + user.alias + " on node " + bbs.node_num;
+	sendSMSMessage(mySMSMessage);
+
+
+}
+function sendSMSMessage(mySMSMessage) {
+	// Get the message to send and then send it!
 
 		var req = new HTTPRequest(twilioAccountSid,twilioAuthToken);
 		var reqData = "From=" + smsFromNumber + "&To=" + smsToNumber + "&Body=" + mySMSMessage;
@@ -97,36 +116,51 @@ function sendSMSMessage() {
 			exit();
 		}
 		else {
-			console.crlf(2);
+			
 			var twilioResponseJSON = JSON.parse(sendSMSResult);
 			if (twilioResponseJSON.status == "queued") {
 		
-				console.putmsg(bl + "Your text message has been sent to the SysOp.");
+				console.putmsg(bl + "Text message has been sent to the SysOp.");
 				console.crlf();
+				console.pause();
 			}
 			else {
 				console.putmsg(rd + "Error sending messaging.  Aborted.");
 				log("ERROR in sms.js (syncSMS): Message failed to send. Twilio status returned " + twilioResponseJSON.status);
 				console.crlf();
+				console.pause();
 
 			}
 
 		}		
-	}
-	else {
-		console.putmsg(rd + "Message send aborted.  Nothing sent.");
-		console.crlf();
-	}
+
 }
 
 		
 try {
 
-	log("syncSMS launched: " + user.alias + " - " + user.ip_address);
-	displayHeader();
-	sendSMSMessage();
-	console.pause();
-    console.clear();
+	// We may be running as a door, or as the SysOp page module.
+
+	for(i=0;i<argc;i++) {
+		switch(argv[i]) {
+			case "-d":
+					debug=true;
+					break;
+			default:
+					var whatFunction=argv[i];
+					break;
+		}
+	}
+
+	if (whatFunction == "page_sysop") {
+		log("syncSMS Sysop Page launched: " + user.alias + " - " + user.ip_address);
+		pageSysOpMode();
+	}
+	else {
+		log("syncSMS Door launched: " + user.alias + " - " + user.ip_address);
+		displayHeader();
+		doorMode();
+	}
     console.aborted = false;
 
 } catch (err) {
