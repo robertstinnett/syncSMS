@@ -105,8 +105,10 @@ function sendSMSMessage(mySMSMessage) {
 	// Get the message to send and then send it!
 
 		var req = new HTTPRequest(twilioAccountSid,twilioAuthToken);
-		var reqData = "From=" + smsFromNumber + "&To=" + smsToNumber + "&Body=" + mySMSMessage;
-		var sendSMSResult = req.Post(apiEndpoint + twilioAccountSid  + "/Messages.json",encodeURI(reqData));
+		var reqData = "From=" + encodeURIComponent(smsFromNumber) +
+				"&To=" + encodeURIComponent(smsToNumber) +
+			        "&Body=" + encodeURIComponent(mySMSMessage);
+		var sendSMSResult = req.Post(apiEndpoint + twilioAccountSid  + "/Messages.json",reqData);
 
 		if (sendSMSResult === undefined) {
 			// Something went wrong
