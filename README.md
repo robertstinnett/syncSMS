@@ -36,3 +36,7 @@ Please see the [LICENSE](https://github.com/robertstinnett/syncSMS/blob/master/L
 * Added ability for it to be used as a SysOp page event
 * Changed page routine to be more modular.
 
+2.01 (2019-03-11)
+* Merged changes from user tracker1 for encoding
+
+
