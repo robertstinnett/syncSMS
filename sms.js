@@ -17,7 +17,7 @@ var gr = "\001g\1h"; //Synchronet Ctrl-A Code for High Intensity Green
 
 // Set some program variables
 
-var version = cy + "2.00" + bl + " - " + cy + "02/18/2019";
+var version = cy + "2.01" + bl + " - " + cy + "03/11/2019";
 var apiEndpoint = "https://api.twilio.com/2010-04-01/Accounts/"; // Twilo Endpoint
 
 //Load modopts.ini info early so we can detect if the section exists for [syncSMS]
